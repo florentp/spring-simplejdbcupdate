@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2010 the original author or authors.
+ * Copyright 2002-2011 the original author or authors.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -38,7 +38,8 @@ import org.springframework.util.Assert;
  * 
  * @author Thomas Risberg
  * @author Juergen Hoeller
- * @since 2.5
+ * @author Florent Paillard
+ * @since 3.0.5
  */
 public abstract class AbstractJdbcUpdate {
 
