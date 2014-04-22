@@ -1,7 +1,7 @@
 About
 =====
 
-Spring Framework provides two SimpleJdbc classes (`SimpleJdbcInsert` and `SimpleJdbcCall`) simplifying the insert operations and stored procedure calls through JDBC where no ORM framework is used. Spring issue [SPR-4691](https://issues.springsource.org/browse/SPR-4691) points out the need of a SimpleJdbcUpdate class simplifying the update operations too.
+Spring Framework provides two SimpleJdbc classes (`SimpleJdbcInsert` and `SimpleJdbcCall`) simplifying the insert operations and stored procedure calls through JDBC where no ORM framework is used. Spring issue [SPR-4691](https://jira.spring.io/browse/SPR-4691) points out the need of a SimpleJdbcUpdate class simplifying the update operations too.
 
 This project is an implementation of the _missing_ `SimpleJdbcUpdate` class.
 
