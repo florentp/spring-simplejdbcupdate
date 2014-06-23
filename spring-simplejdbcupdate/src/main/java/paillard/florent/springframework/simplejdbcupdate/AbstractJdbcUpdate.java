@@ -18,14 +18,17 @@ package paillard.florent.springframework.simplejdbcupdate;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.expression.Operation;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;
@@ -59,7 +62,7 @@ public abstract class AbstractJdbcUpdate {
 	private final List<String> reconciledUpdatingColumns = new ArrayList<String>();
 
 	/** The names of the columns to be used in 'where' clause */
-	private final List<String> restrictingColumns = new ArrayList<String>();
+	private final Map<String, Operator> restrictingColumns = new HashMap<String, Operator>();
 
 	/**
 	 * Has this operation been compiled? Compilation means at least checking
@@ -158,18 +161,29 @@ public abstract class AbstractJdbcUpdate {
 	/**
 	 * Get the names of 'where' columns
 	 */
-	public List<String> getRestrictingColumns() {
-		return Collections.unmodifiableList(this.restrictingColumns);
+	public Set<String> getRestrictingColumns() {
+		return Collections.unmodifiableSet(this.restrictingColumns.keySet());
 	}
 
 	/**
 	 * Set the names of any primary keys
 	 */
 	public void setRestrictingColumns(List<String> whereNames) {
-		checkIfConfigurationModificationIsAllowed();
-		this.restrictingColumns.clear();
-		this.restrictingColumns.addAll(whereNames);
+		Map<String, Operator> columns = new HashMap<String, Operator>();
+		for (String columnName : whereNames) {
+		    columns.put(columnName, Operator.EQUALS);
+		}
+		setRestrictingColumns(columns);
 	}
+	
+	   /**
+     * Set the names of any where columns
+     */
+    public void setRestrictingColumns(Map<String, Operator> whereNames) {
+        checkIfConfigurationModificationIsAllowed();
+        this.restrictingColumns.clear();
+        this.restrictingColumns.putAll(whereNames);
+    }
 
 	/**
 	 * Specify whether the parameter metadata for the call should be used. The
@@ -266,7 +280,7 @@ public abstract class AbstractJdbcUpdate {
 
 		List<String> columns = new ArrayList<String>();
 		columns.addAll(reconciledUpdatingColumns);
-		columns.addAll(restrictingColumns);
+		columns.addAll(restrictingColumns.keySet());
 
 		columnTypes = tableMetaDataContext.createColumnTypes(columns);
 
@@ -335,7 +349,7 @@ public abstract class AbstractJdbcUpdate {
 		checkCompiled();
 		List<Object> values = new ArrayList<Object>();
 		values.addAll(matchInParameterValuesWithUpdateColumns(updatingValues, reconciledUpdatingColumns));
-		values.addAll(matchInParameterValuesWithUpdateColumns(restrictingValues, restrictingColumns));
+		values.addAll(matchInParameterValuesWithUpdateColumns(restrictingValues, new ArrayList<String>(restrictingColumns.keySet())));
 		return executeUpdateInternal(values);
 	}
 
@@ -353,7 +367,7 @@ public abstract class AbstractJdbcUpdate {
 		checkCompiled();
 		List<Object> values = new ArrayList<Object>();
 		values.addAll(matchInParameterValuesWithUpdateColumns(updatingValues, reconciledUpdatingColumns));
-		values.addAll(matchInParameterValuesWithUpdateColumns(restrictingValues, restrictingColumns));
+		values.addAll(matchInParameterValuesWithUpdateColumns(restrictingValues, new ArrayList<String>(restrictingColumns.keySet())));
 		return executeUpdateInternal(values);
 	}
 
@@ -418,13 +432,15 @@ public abstract class AbstractJdbcUpdate {
 		if (restrictingColumns.size() > 0) {
 			updateStatement.append(" WHERE ");
 			columnCount = 0;
-			for (String columnName : restrictingColumns) {
+			for (Map.Entry<String, Operator> column : restrictingColumns.entrySet()) {
 				columnCount++;
 				if (columnCount > 1) {
 					updateStatement.append(" AND ");
 				}
-				updateStatement.append(columnName);
-				updateStatement.append(" = ? ");
+				updateStatement.append(column.getKey());
+				updateStatement.append(" ");
+				updateStatement.append(column.getValue().toString());
+				updateStatement.append(" ? ");
 			}
 		}
 		return updateStatement.toString();

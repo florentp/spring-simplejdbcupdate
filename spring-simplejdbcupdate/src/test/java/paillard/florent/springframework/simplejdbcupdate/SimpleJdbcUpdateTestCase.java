@@ -73,5 +73,31 @@ public class SimpleJdbcUpdateTestCase {
 
 		simpleJdbcUpdate.execute(map1, map2);
 	}
+	
+   @Test
+    public void testWhereOperator() {
+
+        DataSource dataSource = new DriverManagerDataSource("jdbc:hsqldb:mem:testdb");
+        Map<String, Operator> where = new HashMap<String, Operator>();
+        where.put("key_1", Operator.EQUALS);
+        where.put("key_2", Operator.LESS_THAN);
+        
+
+        SimpleJdbcUpdate simpleJdbcUpdate = new SimpleJdbcUpdate(dataSource)
+                .withTableName("dummy_table")
+                .updatingColumns("a_string", "an_int", "a_bool")
+                .restrictingColumns(where);
+
+        Map<String, Object> map1 = new HashMap<String, Object>();
+        map1.put("a_string", "Hello");
+        map1.put("an_int", 42);
+        map1.put("a_bool", true);
+
+        Map<String, Object> map2 = new HashMap<String, Object>();
+        map2.put("key_1", "Pwet");
+        map2.put("key_2", 3);
+
+        simpleJdbcUpdate.execute(map1, map2);
+    }
 
 }
