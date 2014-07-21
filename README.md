@@ -97,6 +97,17 @@ The query built after the previous example will be:
 
 Then, you'll only have to supply values for `field_3` and `field_4` as first parameter of the `execute` method.
 
+### Using restricting columns with operators
+
+By default `restrictingColumns` assume an `=` operator for restricting columns.  An overloaded version of this method, takes a map of column names to operators.
+        
+        Map<String, Operator> where = new HashMap<String,Operator>();
+        where.put("field_1", Operator.GREATER_THAN);
+        simpleJdbcUpdate = new SimpleJdbcUpdate(dataSource)
+                    .withTableName("my_table")
+                    .updatingColumns("field_3", "field_4")
+                    .restrictingColumns(where);
+
 ### Using no restricting columns
 
 If you don't call the `restrictingColumns`, the `WHERE` clause will not be present in the query and every row will be updated each time the execute `method` is called.

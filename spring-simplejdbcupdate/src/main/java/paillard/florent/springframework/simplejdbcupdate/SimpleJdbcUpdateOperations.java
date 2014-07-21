@@ -78,6 +78,15 @@ public interface SimpleJdbcUpdateOperations {
 	 * @return the instance of this SimpleJdbcUpdate
 	 */
 	SimpleJdbcUpdate restrictingColumns(String... columnNames);
+	
+	/**
+     * Specify the names of any columns that are to be part of the where clause.
+     * 
+     * @param columnNames
+     *            one or more column names
+     * @return the instance of this SimpleJdbcUpdate
+     */
+    SimpleJdbcUpdate restrictingColumns(Map<String, Operator> columnsToOperators);
 
 	/**
 	 * Turn off any processing of column meta data information obtained via

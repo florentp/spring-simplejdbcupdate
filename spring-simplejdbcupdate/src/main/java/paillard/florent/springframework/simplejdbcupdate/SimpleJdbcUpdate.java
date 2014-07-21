@@ -103,6 +103,11 @@ public class SimpleJdbcUpdate extends AbstractJdbcUpdate implements SimpleJdbcUp
 		setRestrictingColumns(Arrays.asList(columnNames));
 		return this;
 	}
+	
+   public SimpleJdbcUpdate restrictingColumns(Map<String, Operator> columnsToOps) {
+        setRestrictingColumns(columnsToOps);
+        return this;
+    }
 
 	public SimpleJdbcUpdateOperations withoutTableColumnMetaDataAccess() {
 		setAccessTableColumnMetaData(false);
