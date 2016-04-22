@@ -16,24 +16,45 @@
 
 package paillard.florent.springframework.simplejdbcupdate;
 
+import static junit.framework.Assert.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 public class SimpleJdbcUpdateTestCase {
+	private static final String INSERT_SQL =
+			"INSERT INTO dummy_table(key_1, key_2, a_string, an_int, a_bool)\n"
+			+ "VALUES(?, ?, ?, ?, ?)";
+
+	private static final String SELECT_SQL =
+			"SELECT key_1, key_2, a_string, an_int, a_bool\n"
+			+ "FROM dummy_table\n"
+			+ "WHERE key_1 = ? AND key_2 = ?";
+
+	private DataSource dataSource;
+	private JdbcTemplate jdbcTemplate;
+
+	@Before
+	public void setUpDataSource() {
+		dataSource = new DriverManagerDataSource("jdbc:hsqldb:mem:testdb");
+		jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.update("CREATE TABLE IF NOT EXISTS dummy_table (key_1 VARCHAR(50), key_2 INT, a_string VARCHAR(50), an_int INTEGER, a_bool BIT) ");
+	}
 
 	@Test
 	public void testSqlParameterSource() {
-		DataSource dataSource = new DriverManagerDataSource("jdbc:hsqldb:mem:testdb");
-		SimpleJdbcTemplate createTableTemplate = new SimpleJdbcTemplate(dataSource);
-		createTableTemplate.update("create table dummy_table (key_1 VARCHAR(50), key_2 INT, a_string VARCHAR(50), an_int INTEGER, a_bool BIT) ");
+		String key1 = "Pwet";
+		int key2 = 3;
+		jdbcTemplate.update(INSERT_SQL, key1, key2, "Hi", 40, false);
 
 		SimpleJdbcUpdate simpleJdbcUpdate = new SimpleJdbcUpdate(dataSource)
 				.withTableName("dummy_table")
@@ -46,16 +67,25 @@ public class SimpleJdbcUpdateTestCase {
 				.addValue("a_bool", true);
 
 		SqlParameterSource mapSqlParameterSource2 = new MapSqlParameterSource()
-				.addValue("key_1", "Pwet")
-				.addValue("key_2", 3);
+				.addValue("key_1", key1)
+				.addValue("key_2", key2);
 
-		simpleJdbcUpdate.execute(mapSqlParameterSource1, mapSqlParameterSource2);
+		int affected = simpleJdbcUpdate.execute(mapSqlParameterSource1, mapSqlParameterSource2);
+		assertEquals(1, affected);
+
+		Map<String, Object> row = jdbcTemplate.queryForMap(SELECT_SQL, key1, key2);
+		assertEquals(key1, row.get("key_1"));
+		assertEquals(key2, row.get("key_2"));
+		assertEquals("Hello", row.get("a_string"));
+		assertEquals(42, row.get("an_int"));
+		assertEquals(true, row.get("a_bool"));
 	}
 
 	@Test
 	public void testMap() {
-
-		DataSource dataSource = new DriverManagerDataSource("jdbc:hsqldb:mem:testdb");
+		String key1 = "Pwet";
+		int key2 = 4;
+		jdbcTemplate.update(INSERT_SQL, key1, key2, "Hi", 40, false);
 
 		SimpleJdbcUpdate simpleJdbcUpdate = new SimpleJdbcUpdate(dataSource)
 				.withTableName("dummy_table")
@@ -68,36 +98,49 @@ public class SimpleJdbcUpdateTestCase {
 		map1.put("a_bool", true);
 
 		Map<String, Object> map2 = new HashMap<String, Object>();
-		map2.put("key_1", "Pwet");
-		map2.put("key_2", 3);
+		map2.put("key_1", key1);
+		map2.put("key_2", key2);
 
-		simpleJdbcUpdate.execute(map1, map2);
+		int affected = simpleJdbcUpdate.execute(map1, map2);
+		assertEquals(1, affected);
+
+		Map<String, Object> expectedRow = new HashMap<String, Object>(map1);
+		expectedRow.putAll(map2);
+		Map<String, Object> row = jdbcTemplate.queryForMap(SELECT_SQL, key1, key2);
+		assertEquals(expectedRow, row);
 	}
-	
-   @Test
-    public void testWhereOperator() {
 
-        DataSource dataSource = new DriverManagerDataSource("jdbc:hsqldb:mem:testdb");
-        Map<String, Operator> where = new HashMap<String, Operator>();
-        where.put("key_1", Operator.EQUALS);
-        where.put("key_2", Operator.LESS_THAN);
-        
+	@Test
+	public void testWhereOperator() {
+		String key1 = "Pwet";
+		int key2 = 1;
+		jdbcTemplate.update(INSERT_SQL, key1, key2, "Hi", 40, false);
 
-        SimpleJdbcUpdate simpleJdbcUpdate = new SimpleJdbcUpdate(dataSource)
-                .withTableName("dummy_table")
-                .updatingColumns("a_string", "an_int", "a_bool")
-                .restrictingColumns(where);
+		Map<String, Operator> where = new HashMap<String, Operator>();
+		where.put("key_1", Operator.EQUALS);
+		where.put("key_2", Operator.LESS_THAN);
 
-        Map<String, Object> map1 = new HashMap<String, Object>();
-        map1.put("a_string", "Hello");
-        map1.put("an_int", 42);
-        map1.put("a_bool", true);
+		SimpleJdbcUpdate simpleJdbcUpdate = new SimpleJdbcUpdate(dataSource)
+				.withTableName("dummy_table")
+				.updatingColumns("a_string", "an_int", "a_bool")
+				.restrictingColumns(where);
 
-        Map<String, Object> map2 = new HashMap<String, Object>();
-        map2.put("key_1", "Pwet");
-        map2.put("key_2", 3);
+		Map<String, Object> map1 = new HashMap<String, Object>();
+		map1.put("a_string", "Hello");
+		map1.put("an_int", 42);
+		map1.put("a_bool", true);
 
-        simpleJdbcUpdate.execute(map1, map2);
-    }
+		Map<String, Object> map2 = new HashMap<String, Object>();
+		map2.put("key_1", key1);
+		map2.put("key_2", 2);
 
+		int affected = simpleJdbcUpdate.execute(map1, map2);
+		assertEquals(1, affected);
+
+		Map<String, Object> expectedRow = new HashMap<String, Object>(map1);
+		expectedRow.put("key_1", key1);
+		expectedRow.put("key_2", key2);
+		Map<String, Object> row = jdbcTemplate.queryForMap(SELECT_SQL, key1, key2);
+		assertEquals(expectedRow, row);
+	}
 }
