@@ -28,7 +28,6 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.expression.Operation;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.nativejdbc.NativeJdbcExtractor;

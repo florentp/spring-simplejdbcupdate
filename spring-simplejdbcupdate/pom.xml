@@ -12,6 +12,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.6</java.version>
+		<spring.version>4.2.5.RELEASE</spring.version>
 	</properties>
 
 	<build>
@@ -40,7 +41,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Expression Language (depends on spring-core). Define this if you use 
@@ -48,7 +49,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Bean Factory and JavaBeans utilities (depends on spring-core). Define 
@@ -56,7 +57,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Aspect Oriented Programming (AOP) Framework (depends on spring-core, 
@@ -64,7 +65,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Application Context (depends on spring-core, spring-expression, spring-aop, 
@@ -73,7 +74,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Various Application Context utilities, including EhCache, JavaMail, 
@@ -82,7 +83,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Transaction Management Abstraction (depends on spring-core, spring-beans, 
@@ -91,7 +92,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- JDBC Data Access Library (depends on spring-core, spring-beans, spring-context, 
@@ -99,7 +100,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>3.0.5.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
